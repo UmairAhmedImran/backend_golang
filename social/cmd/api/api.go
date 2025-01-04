@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/UmairAhmedImran/backend_golang/internal/store"
 )
 
 type application struct {
@@ -15,6 +16,7 @@ type application struct {
 
 type config struct {
 	addr string
+	store store.Storage
 }
 
 func (app *application) mount() http.Handler{
