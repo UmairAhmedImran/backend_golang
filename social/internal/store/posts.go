@@ -3,12 +3,42 @@ package store
 import (
 	"database/sql"
 	"context"
+	"github.com/lib/pq"
 )
 
-type PostsStore struct {
+type Post struct {
+	ID int64 `json:"id"`
+	Title string `json:"title"`
+	Content string `json:"content"`
+	Tags []string `json:"tags"`
+	UserID int64 `json:"user_id"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type PostStore struct {
 	db *sql.DB
 }
 
-func (s *PostsStore) Create(ctx context.Context()) error {
-    return nil
+func (s *PostStore) Create(ctx context.Context, post *Post) error {
+    query := `
+	INSERT INTO posts (title, content, user_id, tags)
+	VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
+	`
+
+	err := s.db.QueryRowContext(ctx,
+		query,
+		post.Title,
+		post.Content,
+		post.UserId,
+		pq.Array(post.Tags),
+		).Scan(
+			&post.ID,
+			&post.CreatedAt,
+            &post.UpdatedAt,
+        )
+	if err != nil {
+		return err
+	}
+	return nil
 }
